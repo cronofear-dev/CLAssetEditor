@@ -21,8 +21,11 @@ public:
 
 	UCLWidgetContainerAsset* GetAssetRef() const { return CLWidgetContainerAsset; }
 
+	void BindCommands();
 	void ExtendToolbars();
 
+	// Comman Binds
+	void ReRunEditorUtility();
 public:
 	
 	/** IToolkit interface */
@@ -31,8 +34,10 @@ public:
 	virtual FString GetWorldCentricTabPrefix() const override { return "Widget Container Asset "; };
 	virtual FLinearColor GetWorldCentricTabColorScale() const override { return {}; };
 	virtual FText GetToolkitName() const override;
+	virtual void OnClose() override;
 	/** End IToolkit interface */
 
+public:
 	//~ FGCObject Interface
 	virtual void AddReferencedObjects(FReferenceCollector& Collector) override;
 	virtual FString GetReferencerName() const override

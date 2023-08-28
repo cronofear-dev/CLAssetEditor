@@ -3,6 +3,7 @@
 
 #include "CLWidgetContainerAssetEditorToolkit.h"
 
+#include "CLAssetEditorToolbarCommands.h"
 #include "EditorUtilityWidgetBlueprint.h"
 #include "IBlutilityModule.h"
 #include "Factory/CLWidgetContainerAsset.h"
@@ -10,6 +11,8 @@
 
 void FCLWidgetContainerAssetEditorToolkit::InitAssetEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, UCLWidgetContainerAsset* InAsset)
 {
+	BindCommands();
+	
 	CLWidgetContainerAsset = Cast<UCLWidgetContainerAsset>(InAsset);
 
 	// If the asset is opened manually/normally, then always use the same default layout for any asset opened this way.
@@ -28,12 +31,59 @@ void FCLWidgetContainerAssetEditorToolkit::InitAssetEditor(const EToolkitMode::T
 	);
 
 	FAssetEditorToolkit::InitAssetEditor(EToolkitMode::Standalone, {}, "CLWidgetContainerAssetEditor", Layout, true, true, InAsset);
+
+	// Custom Changes
+	ExtendToolbars();
+}
+
+void FCLWidgetContainerAssetEditorToolkit::BindCommands()
+{
+	FCLAssetEditorToolbarCommands::Register();
+	
+	const FCLAssetEditorToolbarCommands& Commands = FCLAssetEditorToolbarCommands::Get();
+	
+	ToolkitCommands->MapAction(Commands.ReRunEditorUtility, FExecuteAction::CreateSP(this, &FCLWidgetContainerAssetEditorToolkit::ReRunEditorUtility));
 }
 
 void FCLWidgetContainerAssetEditorToolkit::ExtendToolbars()
 {
+	// Lambda like struct to fill the toolbar
+	struct Local
+	{
+		static void FillToolbar(FToolBarBuilder& ToolbarBuilder)
+		{
+			ToolbarBuilder.BeginSection("ExtendToolbarItem");
+			{
+				ToolbarBuilder.AddToolBarButton(FCLAssetEditorToolbarCommands::Get().ReRunEditorUtility, NAME_None,
+					INVTEXT("Refresh"),
+					INVTEXT("Click here to Re-Run the Editor Utility handling this container"),
+					FSlateIcon()
+				);
+				
+			}
+			ToolbarBuilder.EndSection();
+		}
+	};
+	
 	//Register Toolbar Extenders
 	const TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
+
+	ToolbarExtender->AddToolBarExtension("Asset",EExtensionHook::After,GetToolkitCommands(), FToolBarExtensionDelegate::CreateStatic(&Local::FillToolbar));
+
+	AddToolbarExtender(ToolbarExtender);
+
+	// FCLAssetEditorModule* AssetEditorModule = &FModuleManager::LoadModuleChecked<FCLAssetEditorModule>("CLAssetEditor");
+	// AddToolbarExtender(AssetEditorModule->GetEditorToolbarExtensibilityManager()->GetAllExtenders());
+
+	RegenerateMenusAndToolbars();
+}
+
+void FCLWidgetContainerAssetEditorToolkit::ReRunEditorUtility()
+{
+	if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
+	{
+		CLWidgetContainerAsset->AssetEditorUtilityOwner->Run();
+	}
 }
 
 FText FCLWidgetContainerAssetEditorToolkit::GetToolkitName() const
@@ -41,6 +91,13 @@ FText FCLWidgetContainerAssetEditorToolkit::GetToolkitName() const
 	// This method is ticking, this is why the name is stored in the CLWidgetContainerAsset asset itself
 	if(CLWidgetContainerAsset->MainTabName.IsEmpty()) return FText::FromString("Asset Editor Window");
 	return FText::FromString(CLWidgetContainerAsset->MainTabName);
+}
+
+void FCLWidgetContainerAssetEditorToolkit::OnClose()
+{
+	FAssetEditorToolkit::OnClose();
+
+	// CLWidgetContainerAsset->AssetEditorUtilityOwner = nullptr;
 }
 
 void FCLWidgetContainerAssetEditorToolkit::AddReferencedObjects(FReferenceCollector& Collector)
