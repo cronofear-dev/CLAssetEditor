@@ -24,13 +24,13 @@ struct FCLTabDefinition
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CLAssetEditor")
 	FName TabID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CLAssetEditor")
     FText OptionalTabName;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CLAssetEditor")
 	UEditorUtilityWidgetBlueprint* EditorUtilityWidgetBlueprint;
 };
 
@@ -45,13 +45,13 @@ class CLASSETEDITOR_API UCLAssetEditorUtility : public UEditorUtilityObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CLAssetEditor")
 	UCLWidgetContainerAsset* WidgetContainerAsset;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CLAssetEditor")
 	FString MainTabName = "Asset Editor Window";
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CLAssetEditor")
 	TArray<FCLTabDefinition> TabDefinitions;
 
 private:
