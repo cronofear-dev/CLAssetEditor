@@ -15,21 +15,21 @@ The intended use case of this plugin is to build custom tab based asset editors 
 
 - Exposes `CLAssetEditorUtility` which is a UEditorUtilityObject with the ability of building custom asset editors.
 - Exposes a custom Asset `CLWidgetContainerAsset` (`Editor Utilities` category) that can contain the custom editors (`CLAssetEditorUtility` need to reference this container in its class defaults details).
-- The Editor Utility Widgets are created as usual and live each in a tab. This forces a decoupled approach (unnintendedly), which is why `CLAssetEditorUtility` exists as it can be used to orchestrate the communication between the tabs.
+- The Editor Utility Widgets are created as usual and live each in a tab. This forces a decoupled approach (unintendedly), which is why `CLAssetEditorUtility` exists as it can be used to orchestrate the communication between the tabs.
 
 The plugin comes with a simple demo (Content folder):
 ![](https://raw.githubusercontent.com/cronofear-dev/CLAssetEditor/main/Resources/demo.gif)
 
 # Roadmap
 
-Mmost things will be added as I need them in my project. For now, the following is planned:
+Most things will be added as I need them in my project. For now, the following is planned:
 
 - Bindings to editor events (Save, Close Editor, Focus Tab, etc).
 - Fix the layout issues (see Limitations and Known Issues).
 
 # Limitations and Known Issues
 
-- Due to needing to manually add the tabs the first time a new editor is created, and since the layouts are saved per user, this means that each user working on the project will need to manually add the tabs the first time they open the editor (I will investigate if I can fix it by allowing to programatically add the layouts in BP).
+- Due to needing to manually add the tabs the first time a new editor is created, and since the layouts are saved per user, this means that each user working on the project will need to manually add the tabs the first time they open the editor (I will investigate if I can fix it by allowing to programmatically add the layouts in BP).
 - Removing tabs defined in `CLAssetEditorUtility` and re-running the script will cause the tabs removed to be persistent in the editor (If you close it, the next time you open the asset editor they will reappear). To work around this, first manually remove the tabs from the editor, then remove them from the `CLAssetEditorUtility` and re-run the script.
     - Note: If you accidentally removed a tab definition first in `CLAssetEditorUtility`, re-add it using the same id (the id will be the same as the persistent tab name), then follow the steps above.
 - The both issues above combined may be annoying when working with other people, so for now I recommend using this plugin only for personal projects or if you are working alone.
