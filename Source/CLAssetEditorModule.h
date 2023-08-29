@@ -12,7 +12,8 @@
 // - [ ] Add an option to easily extend the toolbar with custom menu/buttons. Maybe even use editor widget for that?
 // - [ ] Bug: When a widget editor is unregistered from an AssetEditorUtility, the tab that belonged to that editor won't be able to be removed (can be removed by restarting the editor layours or by re-adding the widget then closing the tab).
 		// A potential fix to this issue is to close tabs on close window, reopen them on windows open. A better fix would be checking the tabs and seeing if any is invalid, maybe use the tab manager in the toolkit?
-
+// - [ ] For each tab, add the option to navigate to the utility widget asset (or edit it).
+// - [ ] Similarly, add the option in the asset editor to navigate to the utility object/edit it.
 // Issues:
 // When the editor is restarted and the option for reopening the previous windows is selected, the widgets containers will be opened and be empty (This is by design and the asset containers can be reused). I may add a feature so asset containers can save the last editor utility that run them (So they can run it themselves).
 

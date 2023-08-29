@@ -49,7 +49,8 @@ public class CLAssetEditor : ModuleRules
 				"Blutility",
 				"UMG",
 				"UMGEditor",
-				"EditorSubsystem"
+				"EditorSubsystem",
+				"Json"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

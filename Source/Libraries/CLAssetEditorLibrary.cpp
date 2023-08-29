@@ -3,6 +3,8 @@
 
 #include "CLAssetEditorLibrary.h"
 
+#include "Misc/FileHelper.h"
+#include "Serialization/JsonSerializer.h"
 #include "Subsystems/EditorAssetSubsystem.h"
 
 UObject* UCLAssetEditorLibrary::GetBlueprintAssetFromObject(UObject* Object)
@@ -30,4 +32,79 @@ bool UCLAssetEditorLibrary::IsAssetDirty(UObject* Object)
 {
 	UPackage* Package = Object->GetPackage();
 	return Package->IsDirty();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+bool UCLAssetEditorLibrary::SaveJsonFile(const FString& FilePath, const TSharedPtr<FJsonObject>& JsonObject)
+{
+	FString NewJsonContents;
+	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&NewJsonContents);
+	if (FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer))
+	{
+		return FFileHelper::SaveStringToFile(NewJsonContents, *FilePath);
+	}
+
+	return false;
+}
+
+TSharedPtr<FJsonObject> UCLAssetEditorLibrary::LoadJsonFile(const FString& FilePath)
+{
+	TSharedPtr<FJsonObject> JsonObject;
+
+	FString JsonContents;
+	if (FFileHelper::LoadFileToString(OUT JsonContents, *FilePath))
+	{
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonContents);
+		FJsonSerializer::Deserialize(Reader, JsonObject);
+	}
+
+	return JsonObject;
+}
+
+TSet<FString> UCLAssetEditorLibrary::GetAllJsonStringValuesForKey(const TSharedPtr<FJsonObject>& JsonObject, const FString& Key)
+{
+	TSet<FString> AllValues;
+	GetAllJsonStringValuesForKey_Internal(MakeShareable(new FJsonValueObject(JsonObject)), OUT AllValues, Key);
+	return AllValues;
+}
+
+void UCLAssetEditorLibrary::GetAllJsonStringValuesForKey_Internal(const TSharedPtr<FJsonValue>& JsonValue, TSet<FString>& AllValues, const FString& Key)
+{
+	if (JsonValue.IsValid())
+	{
+		switch (JsonValue->Type)
+		{
+		case EJson::Object:
+			{
+				const TSharedPtr<FJsonObject>& JsonObject = JsonValue->AsObject();
+				for (auto& Field : JsonObject->Values)
+				{
+					if (Field.Value->Type == EJson::String && Field.Value.IsValid() && Field.Key == Key)
+					{
+						AllValues.Add(Field.Value->AsString());
+					}
+					if (Field.Value->Type == EJson::Object || Field.Value->Type == EJson::Array)
+					{
+						GetAllJsonStringValuesForKey_Internal(Field.Value, AllValues, Key);
+					}
+				}
+				break;
+			}
+		case EJson::Array:
+			{
+				const TArray<TSharedPtr<FJsonValue>>& ArrayValues = JsonValue->AsArray();
+				for (const TSharedPtr<FJsonValue>& Value : ArrayValues)
+				{
+					if (Value->Type == EJson::Object || Value->Type == EJson::Array)
+					{
+						GetAllJsonStringValuesForKey_Internal(Value, AllValues, Key);
+					}
+				}
+				break;
+			}
+		default:
+			break;
+		}
+	}
 }

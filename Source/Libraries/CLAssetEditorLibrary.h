@@ -31,4 +31,13 @@ public:
 	 */
 	UFUNCTION(BlueprintPure, Category = "CLAssetEditor")
 	static bool IsAssetDirty(UObject* Object);
+
+public:
+	static bool SaveJsonFile(const FString& FilePath, const TSharedPtr<FJsonObject>& JsonObject);
+	static TSharedPtr<FJsonObject> LoadJsonFile(const FString& FilePath);
+
+	static TSet<FString> GetAllJsonStringValuesForKey(const TSharedPtr<FJsonObject>& JsonObject, const FString& Key);
+
+private:
+	static void GetAllJsonStringValuesForKey_Internal(const TSharedPtr<FJsonValue>& JsonValue, TSet<FString>& AllValues, const FString& Key);
 };

@@ -7,6 +7,7 @@
 #include "EditorUtilityWidgetBlueprint.h"
 #include "IBlutilityModule.h"
 #include "Factory/CLWidgetContainerAsset.h"
+#include "Misc/FileHelper.h"
 #include "Objects/CLAssetEditorUtility.h"
 
 void FCLWidgetContainerAssetEditorToolkit::InitAssetEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, UCLWidgetContainerAsset* InAsset)
@@ -27,13 +28,29 @@ void FCLWidgetContainerAssetEditorToolkit::InitAssetEditor(const EToolkitMode::T
 	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout(*LayoutName)
 	->AddArea
 	(
-		FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
+		FTabManager::NewPrimaryArea()
 	);
 
-	FAssetEditorToolkit::InitAssetEditor(EToolkitMode::Standalone, {}, "CLWidgetContainerAssetEditor", Layout, true, true, InAsset);
 
+	FAssetEditorToolkit::InitAssetEditor(EToolkitMode::Standalone, {}, "CLWidgetContainerAssetEditor", Layout, true, true, InAsset);
+	
 	// Custom Changes
 	ExtendToolbars();
+
+	// MAP SAVE ASSET ACTION
+	// ToolkitCommands->MapAction(
+	// FAssetEditorCommonCommands::Get().SaveAsset,
+	// FExecuteAction::CreateSP( this, &FAssetEditorToolkit::SaveAsset_Execute ),
+	// FCanExecuteAction::CreateSP( this, &FAssetEditorToolkit::CanSaveAsset ));
+	
+	// TSharedRef<FTabManager::FLayout> layout = FLayoutSaveRestore::LoadFromConfig(GEditorLayoutIni, Layout);
+	// // auto json = LayoutToUse->ToJson();
+	// // json.Get().
+	//
+	// auto layoutString = layout->ToString();
+	// // save to disk
+	// auto filePath = FPaths::ProjectDir() + "Config/Layouts/" + LayoutName + ".json";
+	// FFileHelper::SaveStringToFile(layoutString, *filePath);
 }
 
 void FCLWidgetContainerAssetEditorToolkit::BindCommands()
@@ -80,9 +97,17 @@ void FCLWidgetContainerAssetEditorToolkit::ExtendToolbars()
 
 void FCLWidgetContainerAssetEditorToolkit::ReRunEditorUtility()
 {
+	// if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
+	// {
+	// 	CLWidgetContainerAsset->AssetEditorUtilityOwner->Run();
+	// }
+
+	// new AssetEditorUtilityOwner
 	if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
 	{
-		CLWidgetContainerAsset->AssetEditorUtilityOwner->Run();
+		// Create a new AssetEditorUtilityOwner
+		auto AssetEditorUtilityOwner = NewObject<UCLAssetEditorUtility>(CLWidgetContainerAsset, CLWidgetContainerAsset->AssetEditorUtilityOwner->GetClass());
+		AssetEditorUtilityOwner->Run();
 	}
 }
 
@@ -126,6 +151,9 @@ void FCLWidgetContainerAssetEditorToolkit::RegisterTabSpawners(const TSharedRef<
 
 	if(!CLWidgetContainerAsset->AssetEditorUtilityOwner) return;
 
+	// InTabManager->UnregisterTabSpawner(FName(TEXT("advancedDetails")));
+	// InTabManager->CloseAllAreas();
+
 	for (auto& tabDefinition : CLWidgetContainerAsset->AssetEditorUtilityOwner->TabDefinitions)
 	{
 		FText DisplayName = tabDefinition.EditorUtilityWidgetBlueprint->GetTabDisplayName();
@@ -140,7 +168,7 @@ void FCLWidgetContainerAssetEditorToolkit::RegisterTabSpawners(const TSharedRef<
 			.SetGroup(WorkspaceMenuCategory.ToSharedRef());
 			// .SetIcon()
 		
-		tabDefinition.EditorUtilityWidgetBlueprint->SetRegistrationName(tabDefinition.TabID);
+		// tabDefinition.EditorUtilityWidgetBlueprint->SetRegistrationName(tabDefinition.TabID);
 		
 		// Don't spawn the tabs as the layout save will take care of it
 		// TSharedPtr<SDockTab> NewDockTab = InTabManager->TryInvokeTab(tabDefinition.TabID);
@@ -153,6 +181,20 @@ void FCLWidgetContainerAssetEditorToolkit::RegisterTabSpawners(const TSharedRef<
 			BlutilityModule->AddLoadedScriptUI(tabDefinition.EditorUtilityWidgetBlueprint);
 		}
 	}
+
+	
+	// // If the asset is opened manually/normally, then always use the same default layout for any asset opened this way.
+	// FString LayoutName = "CL_WidgetContainer_DefaultLayout";
+	// if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
+	// {
+	// 	// Otherwise a unique layout is used per AssetEditorUtility (By name, maybe use path if this is an issue)
+	// 	UObject* AssetFromOwner = CLWidgetContainerAsset->AssetEditorUtilityOwner->GetClass()->ClassGeneratedBy;
+	// 	LayoutName = "CL_" + AssetFromOwner->GetName() + "_Layout";
+	// }
+	
+	// auto layouts = layout->ToString();
+	// auto filePath = FPaths::ProjectDir() + "Config/Layouts/" + LayoutName + ".layout";
+	// FFileHelper::SaveStringToFile(layouts, *filePath);
 }
 
 void FCLWidgetContainerAssetEditorToolkit::UnregisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
