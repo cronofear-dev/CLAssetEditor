@@ -26,9 +26,14 @@ The plugin comes with a simple demo (Content folder):
 
 Things will be added as I need them in my project. For now, the following is planned:
 
-- Bindings to editor events (Save, Close Editor, Focus Tab, etc).
-- Add a button to the toolbar to reload the custom asset editor (useful when developing the editor tool, calls `CLAssetEditorUtility.Run()`).
-- Add a button to the toolbar to save a default layout (calls `CLAssetEditorUtility.SaveDefaultLayout()`)
+- Add more editor bindings as needed.
+- Add a button to the toolbar to save a default layout (calls `CLAssetEditorUtility.SaveDefaultLayout()`). Maybe add it to `File->Save`` so designers don't save layouts accidentally?
+- Override the `Browse to` button to browse the `CLAssetEditorUtility` instead
+
+Nice to have:
+
+- Find a way to add a `Browse to` functionality for each tab in the custom editor (Browse to the EditorUtilityWidget contained by the tab).
+- Investigate a way to add 1 or more BP widgets to the toolbar.
 
 # Limitations and Known Issues
 

@@ -1,3 +1,9 @@
+# 1.2
+
+- Added bindings for CloseEditor, SaveEditor, RefreshEditor.
+- RefreshEditor performs a full refresh of the custom editor (closes and re-runs the editor). This is mostly useful while developing the custom editor and making modifications to its dependencies.
+- Added a button to the toolbar to reload the custom asset editor (useful when developing the editor tool, calls `CLAssetEditorUtility.Run()`).
+
 # 1.1
 
 - Fixed the layout issues
