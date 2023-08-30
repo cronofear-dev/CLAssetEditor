@@ -8,6 +8,7 @@
 #include "Factory/CLWidgetContainerAsset.h"
 #include "Libraries/CLAssetEditorLibrary.h"
 #include "Misc/FileHelper.h"
+#include "Subsystems/UnrealEditorSubsystem.h"
 #include "Widgets/CLWidgetContainerAssetEditorToolkit.h"
 
 void UCLAssetEditorUtility::OpenEditor(bool bLoadValidLayout)
@@ -17,9 +18,9 @@ void UCLAssetEditorUtility::OpenEditor(bool bLoadValidLayout)
 	if(validTabDefinitions.Num() == 0 || validTabDefinitions.Num() != TabDefinitions.Num())
 	{
 		UE_LOG(LogTemp, Error, TEXT("No valid tabs in (%s). Please make sure that all the tabs have a valid TabID and EditorUtilityWidgetBlueprint"), *GetPathName());
-		return;
 	}
-	TabDefinitions = validTabDefinitions;
+	WidgetContainerAsset->TabDefinitions = validTabDefinitions;
+	WidgetContainerAsset->LayoutName = GetLayoutName();
 	
 	// Load most valid layout first
 	if(bLoadValidLayout)
@@ -54,9 +55,9 @@ void UCLAssetEditorUtility::OpenEditor(bool bLoadValidLayout)
 		SpawnedWidgets.FindOrAdd(id, widget);
 	}
 
-	// Null AssetEditorUtilityOwner so CLWidgetContainerAssetEditorToolkit only opens a custom editor when this method is called
-	// It will open a default editor if the assets are opened normally
-	WidgetContainerAsset->AssetEditorUtilityOwner = nullptr;
+	// Reset parameters that are only required for init
+	WidgetContainerAsset->LayoutName = "";
+	WidgetContainerAsset->TabDefinitions.Empty();
 }
 
 UEditorUtilityWidget* UCLAssetEditorUtility::GetEditorUtilityWidgetByID(FName TabID, TSubclassOf<UEditorUtilityWidget> EditorUtilityWidgetClass)
@@ -74,6 +75,23 @@ UEditorUtilityWidget* UCLAssetEditorUtility::GetFirstEditorUtilityWidgetOfClass(
 		}
 	}
 	return nullptr;
+}
+
+void UCLAssetEditorUtility::OnEditorRefresh_Internal()
+{
+	UAssetEditorSubsystem* assetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+	assetEditorSubsystem->CloseAllEditorsForAsset(WidgetContainerAsset);
+	
+	// Create a TWeakLambdaDelegate to hold a reference to the lambda
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindWeakLambda(this, [this](/*params*/)
+	{
+		Run();
+		OnEditorRefresh();
+	});
+	
+	GEditor->GetTimerManager()->SetTimerForNextTick(TimerDelegate);
+	
 }
 
 void UCLAssetEditorUtility::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)

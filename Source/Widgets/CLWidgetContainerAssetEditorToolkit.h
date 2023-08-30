@@ -23,9 +23,7 @@ public:
 
 	void BindCommands();
 	void ExtendToolbars();
-
-	// Comman Binds
-	void ReRunEditorUtility();
+	
 public:
 	
 	/** IToolkit interface */
@@ -34,7 +32,13 @@ public:
 	virtual FString GetWorldCentricTabPrefix() const override { return "Widget Container Asset "; };
 	virtual FLinearColor GetWorldCentricTabColorScale() const override { return {}; };
 	virtual FText GetToolkitName() const override;
+	/** End IToolkit interface */
+
+protected:
+	/** IToolkit interface to listen*/
+	virtual void SaveAsset_Execute() override;
 	virtual void OnClose() override;
+	void RefreshEditor();
 	/** End IToolkit interface */
 
 public:

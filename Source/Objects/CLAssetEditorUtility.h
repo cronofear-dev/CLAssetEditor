@@ -88,6 +88,17 @@ public:
 	UEditorUtilityWidget* GetFirstEditorUtilityWidgetOfClass(TSubclassOf<UEditorUtilityWidget> EditorUtilityWidgetClass);
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEditorSave();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEditorRefresh();
+	void OnEditorRefresh_Internal();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEditorClose();
+
+public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 	/**

@@ -18,11 +18,9 @@ void FCLWidgetContainerAssetEditorToolkit::InitAssetEditor(const EToolkitMode::T
 
 	// If the asset is opened manually/normally, then always use the same default layout for any asset opened this way.
 	FString LayoutName = "CL_WidgetContainer_DefaultLayout";
-	if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
+	if(!CLWidgetContainerAsset->LayoutName.IsEmpty())
 	{
-		// Otherwise a unique layout is used per AssetEditorUtility (By name, maybe use path if this is an issue)
-		UObject* AssetFromOwner = CLWidgetContainerAsset->AssetEditorUtilityOwner->GetClass()->ClassGeneratedBy;
-		LayoutName = "CL_" + AssetFromOwner->GetName() + "_Layout";
+		LayoutName = CLWidgetContainerAsset->LayoutName;
 	}
 	
 	const TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout(*LayoutName)
@@ -59,7 +57,7 @@ void FCLWidgetContainerAssetEditorToolkit::BindCommands()
 	
 	const FCLAssetEditorToolbarCommands& Commands = FCLAssetEditorToolbarCommands::Get();
 	
-	ToolkitCommands->MapAction(Commands.ReRunEditorUtility, FExecuteAction::CreateSP(this, &FCLWidgetContainerAssetEditorToolkit::ReRunEditorUtility));
+	ToolkitCommands->MapAction(Commands.ReRunEditorUtility, FExecuteAction::CreateSP(this, &FCLWidgetContainerAssetEditorToolkit::RefreshEditor));
 }
 
 void FCLWidgetContainerAssetEditorToolkit::ExtendToolbars()
@@ -95,22 +93,6 @@ void FCLWidgetContainerAssetEditorToolkit::ExtendToolbars()
 	RegenerateMenusAndToolbars();
 }
 
-void FCLWidgetContainerAssetEditorToolkit::ReRunEditorUtility()
-{
-	// if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
-	// {
-	// 	CLWidgetContainerAsset->AssetEditorUtilityOwner->Run();
-	// }
-
-	// new AssetEditorUtilityOwner
-	if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
-	{
-		// Create a new AssetEditorUtilityOwner
-		auto AssetEditorUtilityOwner = NewObject<UCLAssetEditorUtility>(CLWidgetContainerAsset, CLWidgetContainerAsset->AssetEditorUtilityOwner->GetClass());
-		AssetEditorUtilityOwner->Run();
-	}
-}
-
 FText FCLWidgetContainerAssetEditorToolkit::GetToolkitName() const
 {
 	// This method is ticking, this is why the name is stored in the CLWidgetContainerAsset asset itself
@@ -118,11 +100,34 @@ FText FCLWidgetContainerAssetEditorToolkit::GetToolkitName() const
 	return FText::FromString(CLWidgetContainerAsset->MainTabName);
 }
 
+
+void FCLWidgetContainerAssetEditorToolkit::SaveAsset_Execute()
+{
+	FAssetEditorToolkit::SaveAsset_Execute();
+
+	if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
+	{
+		CLWidgetContainerAsset->AssetEditorUtilityOwner->OnEditorSave();
+	}
+}
+
 void FCLWidgetContainerAssetEditorToolkit::OnClose()
 {
 	FAssetEditorToolkit::OnClose();
 
-	// CLWidgetContainerAsset->AssetEditorUtilityOwner = nullptr;
+	if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
+	{
+		CLWidgetContainerAsset->AssetEditorUtilityOwner->OnEditorClose();
+	}
+}
+
+void FCLWidgetContainerAssetEditorToolkit::RefreshEditor()
+{
+	// new AssetEditorUtilityOwner
+	if(CLWidgetContainerAsset->AssetEditorUtilityOwner)
+	{
+		CLWidgetContainerAsset->AssetEditorUtilityOwner->OnEditorRefresh_Internal();
+	}
 }
 
 void FCLWidgetContainerAssetEditorToolkit::AddReferencedObjects(FReferenceCollector& Collector)
@@ -149,12 +154,12 @@ void FCLWidgetContainerAssetEditorToolkit::RegisterTabSpawners(const TSharedRef<
 	// .SetDisplayName(INVTEXT("MyTab"))
 	// .SetGroup(WorkspaceMenuCategory.ToSharedRef());
 
-	if(!CLWidgetContainerAsset->AssetEditorUtilityOwner) return;
+	if(CLWidgetContainerAsset->TabDefinitions.Num()==0) return;
 
 	// InTabManager->UnregisterTabSpawner(FName(TEXT("advancedDetails")));
 	// InTabManager->CloseAllAreas();
 
-	for (auto& tabDefinition : CLWidgetContainerAsset->AssetEditorUtilityOwner->TabDefinitions)
+	for (auto& tabDefinition : CLWidgetContainerAsset->TabDefinitions)
 	{
 		FText DisplayName = tabDefinition.EditorUtilityWidgetBlueprint->GetTabDisplayName();
 		if(!tabDefinition.OptionalTabName.IsEmpty())
@@ -201,9 +206,9 @@ void FCLWidgetContainerAssetEditorToolkit::UnregisterTabSpawners(const TSharedRe
 {
 	FAssetEditorToolkit::UnregisterTabSpawners(InTabManager);
 	
-	if(!CLWidgetContainerAsset->AssetEditorUtilityOwner) return;
+	if(CLWidgetContainerAsset->TabDefinitions.Num()==0) return;
 	
-	for (auto& tabDefinition : CLWidgetContainerAsset->AssetEditorUtilityOwner->TabDefinitions)
+	for (auto& tabDefinition : CLWidgetContainerAsset->TabDefinitions)
 	{
 		InTabManager->UnregisterTabSpawner(tabDefinition.TabID);
 	}
