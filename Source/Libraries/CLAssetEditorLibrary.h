@@ -22,8 +22,16 @@ public:
 	UFUNCTION(BlueprintPure, Category = "CLAssetEditor", meta=(DeterminesOutputType = "Class"))
 	static UObject* GetBlueprintAssetFromClass(UClass* Class);
 
+	UFUNCTION(BlueprintPure, Category = "CLAssetEditor", meta=(DeterminesOutputType = "Object"))
+	static UObject* GetDefaultObjectFromObject(UObject* Object);
 	UFUNCTION(BlueprintPure, Category = "CLAssetEditor", meta=(DeterminesOutputType = "Class"))
 	static UObject* GetDefaultObjectFromClass(UClass* Class);
+
+	UFUNCTION(BlueprintPure, Category = "CLAssetEditor", meta=(Keywords = "GetContainingClass"))
+	static UClass* GetParentClassFromBlueprintAsset(UBlueprint* BlueprintAsset);
+
+	UFUNCTION(BlueprintCallable, Category = "CLAssetEditor")
+	static UBlueprint* CastToBlueprint(UObject* Object);
 	
 
 	/**
@@ -35,6 +43,9 @@ public:
 public:
 	static bool SaveJsonFile(const FString& FilePath, const TSharedPtr<FJsonObject>& JsonObject);
 	static TSharedPtr<FJsonObject> LoadJsonFile(const FString& FilePath);
+
+	static bool JsonToString(const TSharedPtr<FJsonObject>& JsonObject, FString& OutJsonString);
+	static TSharedPtr<FJsonObject> JsonFromString(const FString& JsonString);
 
 	static TSet<FString> GetAllJsonStringValuesForKey(const TSharedPtr<FJsonObject>& JsonObject, const FString& Key);
 

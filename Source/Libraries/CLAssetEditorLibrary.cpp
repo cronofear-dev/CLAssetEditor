@@ -22,10 +22,25 @@ UObject* UCLAssetEditorLibrary::GetBlueprintAssetFromClass(UClass* Class)
 	return Class->ClassGeneratedBy;
 }
 
+UObject* UCLAssetEditorLibrary::GetDefaultObjectFromObject(UObject* Object)
+{
+	return Object->GetClass()->GetDefaultObject();
+}
+
 UObject* UCLAssetEditorLibrary::GetDefaultObjectFromClass(UClass* Class)
 {
 	// Get default CDO from a given UClass
 	return Class->ClassDefaultObject;
+}
+
+UClass* UCLAssetEditorLibrary::GetParentClassFromBlueprintAsset(UBlueprint* BlueprintAsset)
+{
+	return BlueprintAsset->ParentClass;
+}
+
+UBlueprint* UCLAssetEditorLibrary::CastToBlueprint(UObject* Object)
+{
+	return Cast<UBlueprint>(Object);
 }
 
 bool UCLAssetEditorLibrary::IsAssetDirty(UObject* Object)
@@ -38,24 +53,41 @@ bool UCLAssetEditorLibrary::IsAssetDirty(UObject* Object)
 
 bool UCLAssetEditorLibrary::SaveJsonFile(const FString& FilePath, const TSharedPtr<FJsonObject>& JsonObject)
 {
-	FString NewJsonContents;
-	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&NewJsonContents);
-	if (FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer))
+	FString jsonString;
+	if (JsonToString(JsonObject, OUT jsonString))
 	{
-		return FFileHelper::SaveStringToFile(NewJsonContents, *FilePath);
+		return FFileHelper::SaveStringToFile(*jsonString, *FilePath);
 	}
-
 	return false;
 }
 
 TSharedPtr<FJsonObject> UCLAssetEditorLibrary::LoadJsonFile(const FString& FilePath)
 {
-	TSharedPtr<FJsonObject> JsonObject;
-
 	FString JsonContents;
 	if (FFileHelper::LoadFileToString(OUT JsonContents, *FilePath))
 	{
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonContents);
+		return JsonFromString(*JsonContents);
+	}
+
+	return nullptr;
+}
+
+bool UCLAssetEditorLibrary::JsonToString(const TSharedPtr<FJsonObject>& JsonObject, FString& OutJsonString)
+{
+	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutJsonString);
+	if (FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer))
+	{
+		return true;
+	}
+	return false;
+}
+
+TSharedPtr<FJsonObject> UCLAssetEditorLibrary::JsonFromString(const FString& JsonString)
+{
+	TSharedPtr<FJsonObject> JsonObject;
+	if(!JsonString.IsEmpty())
+	{
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
 		FJsonSerializer::Deserialize(Reader, JsonObject);
 	}
 
