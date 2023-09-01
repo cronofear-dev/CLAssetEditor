@@ -15,25 +15,25 @@ class CLASSETEDITOR_API UCLEdSubsystemTest : public UEditorSubsystem
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "CLAssetEditor")
 	FString VisibleAnywhere;
 
-	UPROPERTY(VisibleDefaultsOnly)
+	UPROPERTY(VisibleDefaultsOnly, Category = "CLAssetEditor")
 	FString VisibleDefaultsOnly;
 
-	UPROPERTY(VisibleInstanceOnly)
+	UPROPERTY(VisibleInstanceOnly, Category = "CLAssetEditor")
 	FString VisibleInstanceOnly;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "CLAssetEditor")
 	FString EditAnywhere;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "CLAssetEditor")
 	FString EditDefaultsOnly;
 	
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditInstanceOnly, Category = "CLAssetEditor")
 	FString EditInstanceOnly;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CLAssetEditor")
 	TArray<FString> Array;
 
 	UFUNCTION(BlueprintCallable, Category = "CLAssetEditor", CallInEditor)

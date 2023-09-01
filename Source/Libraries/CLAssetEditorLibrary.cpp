@@ -105,38 +105,31 @@ void UCLAssetEditorLibrary::GetAllJsonStringValuesForKey_Internal(const TSharedP
 {
 	if (JsonValue.IsValid())
 	{
-		switch (JsonValue->Type)
+		if (JsonValue->Type == EJson::Object)
 		{
-		case EJson::Object:
+			const TSharedPtr<FJsonObject>& JsonObject = JsonValue->AsObject();
+			for (auto& Field : JsonObject->Values)
 			{
-				const TSharedPtr<FJsonObject>& JsonObject = JsonValue->AsObject();
-				for (auto& Field : JsonObject->Values)
+				if (Field.Value->Type == EJson::String && Field.Value.IsValid() && Field.Key == Key)
 				{
-					if (Field.Value->Type == EJson::String && Field.Value.IsValid() && Field.Key == Key)
-					{
-						AllValues.Add(Field.Value->AsString());
-					}
-					if (Field.Value->Type == EJson::Object || Field.Value->Type == EJson::Array)
-					{
-						GetAllJsonStringValuesForKey_Internal(Field.Value, AllValues, Key);
-					}
+					AllValues.Add(Field.Value->AsString());
 				}
-				break;
+				if (Field.Value->Type == EJson::Object || Field.Value->Type == EJson::Array)
+				{
+					GetAllJsonStringValuesForKey_Internal(Field.Value, AllValues, Key);
+				}
 			}
-		case EJson::Array:
+		}
+		else if (JsonValue->Type == EJson::Array)
+		{
+			const TArray<TSharedPtr<FJsonValue>>& ArrayValues = JsonValue->AsArray();
+			for (const TSharedPtr<FJsonValue>& Value : ArrayValues)
 			{
-				const TArray<TSharedPtr<FJsonValue>>& ArrayValues = JsonValue->AsArray();
-				for (const TSharedPtr<FJsonValue>& Value : ArrayValues)
+				if (Value->Type == EJson::Object || Value->Type == EJson::Array)
 				{
-					if (Value->Type == EJson::Object || Value->Type == EJson::Array)
-					{
-						GetAllJsonStringValuesForKey_Internal(Value, AllValues, Key);
-					}
+					GetAllJsonStringValuesForKey_Internal(Value, AllValues, Key);
 				}
-				break;
 			}
-		default:
-			break;
 		}
 	}
 }
