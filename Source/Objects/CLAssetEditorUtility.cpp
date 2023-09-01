@@ -5,7 +5,7 @@
 
 #include "EditorUtilityWidgetBlueprint.h"
 #include "Dom/JsonObject.h"
-#include "Factory/CLWidgetContainerAsset.h"
+#include "Objects/CLWidgetContainerAsset.h"
 #include "Libraries/CLAssetEditorLibrary.h"
 #include "Misc/FileHelper.h"
 #include "Subsystems/UnrealEditorSubsystem.h"

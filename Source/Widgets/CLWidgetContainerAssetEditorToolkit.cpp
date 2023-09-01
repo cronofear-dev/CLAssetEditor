@@ -6,7 +6,7 @@
 #include "CLAssetEditorToolbarCommands.h"
 #include "EditorUtilityWidgetBlueprint.h"
 #include "IBlutilityModule.h"
-#include "Factory/CLWidgetContainerAsset.h"
+#include "Objects/CLWidgetContainerAsset.h"
 #include "Misc/FileHelper.h"
 #include "Objects/CLAssetEditorUtility.h"
 

@@ -2,7 +2,7 @@
 
 
 #include "CLWidgetContainerAssetFactory.h"
-#include "CLWidgetContainerAsset.h"
+#include "Objects/CLWidgetContainerAsset.h"
 
 UCLWidgetContainerAssetFactory::UCLWidgetContainerAssetFactory()
 {

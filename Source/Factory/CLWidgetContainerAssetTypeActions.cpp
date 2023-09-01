@@ -2,7 +2,7 @@
 
 
 #include "CLWidgetContainerAssetTypeActions.h"
-#include "CLWidgetContainerAsset.h"
+#include "Objects/CLWidgetContainerAsset.h"
 #include "Widgets/CLWidgetContainerAssetEditorToolkit.h"
 
 FText FCLWidgetContainerAssetTypeActions::GetName() const
