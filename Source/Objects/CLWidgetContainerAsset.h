@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "CLWidgetContainerAsset.generated.h"
 
+struct FCLTabDefinition;
 class UCLAssetEditorUtility;
 class UEditorUtilityWidget;
 class UEditorUtilityWidgetBlueprint;
