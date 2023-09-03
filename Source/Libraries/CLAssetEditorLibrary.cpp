@@ -5,7 +5,6 @@
 
 #include "Misc/FileHelper.h"
 #include "Serialization/JsonSerializer.h"
-#include "Subsystems/EditorAssetSubsystem.h"
 
 UObject* UCLAssetEditorLibrary::GetBlueprintAssetFromObject(UObject* Object)
 {

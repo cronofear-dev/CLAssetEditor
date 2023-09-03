@@ -22,6 +22,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "CLAssetEditor", meta=(DeterminesOutputType = "Class"))
 	static UObject* GetBlueprintAssetFromClass(UClass* Class);
 
+	/**
+	 * It's not recommended to expose the CDO to BP in runtime, but this is for the editor so it should be fine.
+	 */
 	UFUNCTION(BlueprintPure, Category = "CLAssetEditor", meta=(DeterminesOutputType = "Object"))
 	static UObject* GetDefaultObjectFromObject(UObject* Object);
 	UFUNCTION(BlueprintPure, Category = "CLAssetEditor", meta=(DeterminesOutputType = "Class"))
