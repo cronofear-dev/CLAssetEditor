@@ -129,13 +129,13 @@ public:
 
 private:
 	// Gets an empty layout for this asset (using its name)
-	TSharedRef<FTabManager::FLayout> MakeEmptyLayout(const FString& LayoutName) const;
+	TSharedRef<FTabManager::FLayout> MakeEmptyLayout(const FString& LayoutName);
 
 	FString GetLayoutName() const;
 
-	FString GetLayoutFilePath() const;
+	static FString GetLayoutFilePath();
 
-	TSharedPtr<FTabManager::FLayout> LoadLayoutFromJsonFile(const FString& LayoutFilePath, const FString& LayoutName) const;
+	static TSharedPtr<FTabManager::FLayout> LoadLayoutFromJsonFile(const FString& LayoutFilePath, const FString& LayoutName);
 
 	TSet<FCLTabDefinition> GetValidTabDefinitions() const;
 

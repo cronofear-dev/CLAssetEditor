@@ -7,8 +7,6 @@
 #include "Dom/JsonObject.h"
 #include "Objects/CLWidgetContainerAsset.h"
 #include "Libraries/CLAssetEditorLibrary.h"
-#include "Misc/FileHelper.h"
-#include "Subsystems/UnrealEditorSubsystem.h"
 #include "Widgets/CLWidgetContainerAssetEditorToolkit.h"
 
 void UCLAssetEditorUtility::OpenEditor(bool bLoadValidLayout)
@@ -43,7 +41,7 @@ void UCLAssetEditorUtility::OpenEditor(bool bLoadValidLayout)
 
 	// Get widgets references created in OpenEditorForAsset (This has the disadvantage of not allowing duplicate EditorUtilityWidgetBlueprint)
 	// Can be fixed by reimplementing OpenEditorForAsset()
-	for (auto& tabDefinition : TabDefinitions)
+	for (const auto& tabDefinition : TabDefinitions)
 	{
 		FName id = tabDefinition.TabID;
 		auto widget = tabDefinition.EditorUtilityWidgetBlueprint->GetCreatedWidget();
@@ -105,20 +103,20 @@ void UCLAssetEditorUtility::PostEditChangeProperty(FPropertyChangedEvent& Proper
 	// auto Name2 = PropertyChangedEvent.Property->GetFName();
 
 	// Get the name of the edited property, and the names of the properties we want to compare
-	auto editedName = PropertyChangedEvent.GetPropertyName();
-	auto tabIDName = GET_MEMBER_NAME_CHECKED(FCLTabDefinition, TabID);
-	auto tabDefinitionsName = GET_MEMBER_NAME_CHECKED(UCLAssetEditorUtility, TabDefinitions);
+	const auto editedName = PropertyChangedEvent.GetPropertyName();
+	const auto tabIDName = GET_MEMBER_NAME_CHECKED(FCLTabDefinition, TabID);
+	const auto tabDefinitionsName = GET_MEMBER_NAME_CHECKED(UCLAssetEditorUtility, TabDefinitions);
 
 	// If we edited the definitions of the TabIDs in any way, then reset the layout
 	if(editedName == tabIDName || editedName == tabDefinitionsName)
 	{
-		TSet<FName> tabDefinitionIds = GetValidTabIds();
+		const TSet<FName> tabDefinitionIds = GetValidTabIds();
 
-		int numMatches = tabDefinitionIds.Intersect(StoredTabIds).Num();
+		const int numMatches = tabDefinitionIds.Intersect(StoredTabIds).Num();
 		if(numMatches != tabDefinitionIds.Num() || numMatches != StoredTabIds.Num())
 		{
-			bool bResetDefaultLayout = true;
 			UE_LOG(LogTemp, Log, TEXT("LAYOUTS RESET"));
+			constexpr bool bResetDefaultLayout = true;
 			ResetLayout(bResetDefaultLayout);
 			StoredTabIds = tabDefinitionIds;
 		}
@@ -159,17 +157,17 @@ void UCLAssetEditorUtility::LoadValidLayout()
 	//# If both layouts are valid, then compare.
 	//# If they have unmatched tabs, then load the default layout.
 	//# Otherwise keep using the editor layout.
-	TSet<FString> defaultTabIdValues = UCLAssetEditorLibrary::GetAllJsonStringValuesForKey(loadedDefaultLayout.ToSharedRef()->ToJson(), "TabId");
-	TSet<FString> editorTabIdValues = UCLAssetEditorLibrary::GetAllJsonStringValuesForKey(loadedEditorLayout->ToJson(), "TabId");
-	TSet<FString> validAssetTabIds = GetValidTabIdsAsString();
+	const TSet<FString>& defaultTabIdValues = UCLAssetEditorLibrary::GetAllJsonStringValuesForKey(loadedDefaultLayout.ToSharedRef()->ToJson(), "TabId");
+	const TSet<FString>& editorTabIdValues = UCLAssetEditorLibrary::GetAllJsonStringValuesForKey(loadedEditorLayout->ToJson(), "TabId");
+	const TSet<FString>& validAssetTabIds = GetValidTabIdsAsString();
 
 	// If the intersection of tabIds are different, it means that the editorLayout and defaultLayout are structurably different.
 	// In which case, we should attempt to load the default layout.
-	int matchesNum = defaultTabIdValues.Intersect(editorTabIdValues).Num();
+	const int matchesNum = defaultTabIdValues.Intersect(editorTabIdValues).Num();
 	if(matchesNum != defaultTabIdValues.Num() || matchesNum != editorTabIdValues.Num())
 	{
 		// And finally, only load the default layout if there's a difference between the validAssetTabIds and the editorTabIdValues
-		int tabsDifferenceWithDefaultNum = defaultTabIdValues.Difference(validAssetTabIds).Num();
+		const int tabsDifferenceWithDefaultNum = defaultTabIdValues.Difference(validAssetTabIds).Num();
 		if (tabsDifferenceWithDefaultNum == 0)
 		{
 			// Only load the default layout if it supports all the valid tab ids
@@ -192,7 +190,7 @@ void UCLAssetEditorUtility::ResetLayout(bool bResetDefaultLayout)
 	if(bResetDefaultLayout)
 	{
 		// Load all layouts json from `Config/CLAssetEditor/CLAssetEditor_Layouts.json`
-		TSharedPtr<FJsonObject> allJsonLayouts = UCLAssetEditorLibrary::LoadJsonFile(*pluginLayoutFilePath);
+		const TSharedPtr<FJsonObject> allJsonLayouts = UCLAssetEditorLibrary::LoadJsonFile(*pluginLayoutFilePath);
 		if(!allJsonLayouts.IsValid()) return;
 		// Remove this layout from the allLayouts json
 		if(allJsonLayouts->HasField(*layoutName))
@@ -239,7 +237,7 @@ void UCLAssetEditorUtility::LoadDefaultLayout()
 	}
 }
 
-TSharedRef<FTabManager::FLayout> UCLAssetEditorUtility::MakeEmptyLayout(const FString& LayoutName) const
+TSharedRef<FTabManager::FLayout> UCLAssetEditorUtility::MakeEmptyLayout(const FString& LayoutName)
 {
 	const TSharedRef<FTabManager::FLayout> emptyLayout = FTabManager::NewLayout(*LayoutName)
 	->AddArea
@@ -255,18 +253,18 @@ FString UCLAssetEditorUtility::GetLayoutName() const
 	return "CL_" + GetClass()->ClassGeneratedBy->GetName() + "_Layout";
 }
 
-FString UCLAssetEditorUtility::GetLayoutFilePath() const
+FString UCLAssetEditorUtility::GetLayoutFilePath()
 {
 	return FPaths::ProjectConfigDir() + "Layouts/CLAssetEditor_DefaultLayouts.json";
 }
 
-TSharedPtr<FTabManager::FLayout> UCLAssetEditorUtility::LoadLayoutFromJsonFile(const FString& LayoutFilePath, const FString& LayoutName) const
+TSharedPtr<FTabManager::FLayout> UCLAssetEditorUtility::LoadLayoutFromJsonFile(const FString& LayoutFilePath, const FString& LayoutName)
 {
 	TSharedPtr<FTabManager::FLayout> loadedLayout = nullptr;
 
 	//# Load all layouts json from `Config/CLAssetEditor/CLAssetEditor_Layouts.json`
 
-	TSharedPtr<FJsonObject> allJsonLayouts = UCLAssetEditorLibrary::LoadJsonFile(*LayoutFilePath);
+	const TSharedPtr<FJsonObject> allJsonLayouts = UCLAssetEditorLibrary::LoadJsonFile(*LayoutFilePath);
 	if(!allJsonLayouts.IsValid()) return loadedLayout;
 
 	//# Get the relevant layout from the allLayouts json, and save it to the editor config
