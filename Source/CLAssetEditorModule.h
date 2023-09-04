@@ -16,6 +16,7 @@
 // - [ ] Similarly, add the option in the asset editor to navigate to the utility object/edit it.
 // Issues:
 // When the editor is restarted and the option for reopening the previous windows is selected, the widgets containers will be opened and be empty (This is by design and the asset containers can be reused). I may add a feature so asset containers can save the last editor utility that run them (So they can run it themselves).
+// The layout solution will not work well when shared with other people if there's an existing valid editor layout. A "Load defeault layout" button is probably the easiest solution. Alternatively, versioning the layouts may be a better solution (version by name or by a custom json param).
 
 #pragma once
 
