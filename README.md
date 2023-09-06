@@ -34,6 +34,9 @@ Nice to have:
 
 - Find a way to add a `Browse to` functionality for each tab in the custom editor (Browse to the EditorUtilityWidget contained by the tab).
 - Investigate a way to add 1 or more BP widgets to the toolbar.
+- Support back and forth Asset/Json serialization (And use the JSON files as the single point of authority). I want to do this eventually but I'm not sure if it's worth the effort for now.
+    - Maybe use `https://github.com/slowburn-dev/DataConfig` to support this?
+    - Maybe save the json file along with the .uasset counterpart in the content folder (and open it using the asset editor or the OS explorer.)
 
 # Limitations and Known Issues
 
